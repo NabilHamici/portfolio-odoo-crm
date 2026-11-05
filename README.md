@@ -43,6 +43,52 @@ Module docs: [`addons/portfolio_crm/README.md`](addons/portfolio_crm/README.md)
 
 ---
 
+## Showcase
+
+Screenshots from the running Odoo 19 environment and `portfolio_crm` module.
+
+### CRM pipeline (Kanban)
+
+![CRM pipeline Kanban view](docs/showcase/01-crm-pipeline-kanban.png)
+
+### Opportunity form with Portfolio actions
+
+![Opportunity form with Assign / Mark Won and Portfolio tab](docs/showcase/02-opportunity-form.png)
+
+### Won opportunity workflow
+
+![Opportunity marked as Won](docs/showcase/03-opportunity-won.png)
+
+### Portfolio CRM dashboard
+
+![Portfolio CRM dashboard graph view](docs/showcase/04-portfolio-dashboard.png)
+
+### Customers
+
+![CRM customers list](docs/showcase/05-customers-list.png)
+
+### Sales analytics dashboard
+
+![Sales KPI dashboard](docs/showcase/06-sales-dashboard.png)
+
+### Quotation email
+
+![Send quotation email wizard](docs/showcase/07-send-quotation-email.png)
+
+### Sales quotation
+
+![Sales quotation form](docs/showcase/08-quotation-form.png)
+
+### Odoo settings (CRM & Sales installed)
+
+![Odoo general settings](docs/showcase/09-odoo-settings.png)
+
+### Project structure
+
+![Repository and module structure in the IDE](docs/showcase/10-project-structure.png)
+
+---
+
 ## Stack
 
 | Component | Technology | Purpose |
@@ -63,6 +109,8 @@ Module docs: [`addons/portfolio_crm/README.md`](addons/portfolio_crm/README.md)
 │   └── portfolio_crm/          # Advanced CRM & Sales module
 ├── config/
 │   └── odoo.conf               # Odoo runtime configuration
+├── docs/
+│   └── showcase/               # README screenshots
 ├── data/postgresql/            # Reserved (named volumes used by default)
 ├── logs/                       # Host-visible Odoo logs (gitignored content)
 ├── scripts/
