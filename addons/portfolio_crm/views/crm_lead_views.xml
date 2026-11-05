@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_crm_lead_form_portfolio" model="ir.ui.view">
+        <field name="name">crm.lead.form.portfolio</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_portfolio_convert"
+                        type="object"
+                        string="Convert to Opportunity"
+                        class="btn-primary"
+                        invisible="type != 'lead' or not active"
+                        groups="portfolio_crm.group_crm_user"/>
+                <button name="action_portfolio_assign_wizard"
+                        type="object"
+                        string="Assign"
+                        groups="portfolio_crm.group_crm_user"/>
+                <button name="action_portfolio_mark_won"
+                        type="object"
+                        string="Mark Won"
+                        invisible="type != 'opportunity' or probability == 100 or not active"
+                        groups="portfolio_crm.group_crm_user"/>
+                <button name="action_portfolio_mark_lost"
+                        type="object"
+                        string="Mark Lost"
+                        invisible="not active or probability == 0"
+                        groups="portfolio_crm.group_crm_user"/>
+            </xpath>
+
+            <xpath expr="//group[@name='lead_priority']/field[@name='tag_ids']" position="after">
+                <field name="lead_quality"/>
+                <field name="qualification_score" readonly="1"/>
+                <field name="portfolio_auto_ready" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//field[@name='date_deadline']" position="after">
+                <field name="followup_date"/>
+                <field name="weighted_revenue" readonly="1"/>
+                <field name="is_followup_overdue" invisible="1"/>
+                <field name="days_to_followup" invisible="1"/>
+                <field name="assignment_date" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//page[@name='internal_notes']" position="after">
+                <page string="Portfolio" name="portfolio_page">
+                    <group>
+                        <group string="Pipeline">
+                            <field name="weighted_revenue"/>
+                            <field name="qualification_score"/>
+                            <field name="lead_quality"/>
+                            <field name="followup_date"/>
+                            <field name="is_followup_overdue" readonly="1"/>
+                            <field name="days_to_followup" readonly="1"/>
+                        </group>
+                        <group string="Sales">
+                            <field name="quotation_state_summary" readonly="1"/>
+                            <field name="open_quotation_count" readonly="1"/>
+                            <field name="quotation_count" readonly="1"/>
+                            <field name="sale_order_count" readonly="1"/>
+                            <field name="assignment_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="portfolio_notes" nolabel="1" colspan="2"
+                                 placeholder="Internal portfolio notes..."/>
+                    </group>
+                    <group string="Related Quotations" invisible="not order_ids">
+                        <field name="order_ids" nolabel="1" colspan="2" readonly="1">
+                            <list>
+                                <field name="name"/>
+                                <field name="date_order"/>
+                                <field name="state"/>
+                                <field name="amount_total"/>
+                                <field name="user_id"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_crm_lead_list_portfolio" model="ir.ui.view">
+        <field name="name">crm.lead.list.portfolio</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_leads"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="decoration-danger">is_followup_overdue</attribute>
+            </xpath>
+            <xpath expr="//field[@name='contact_name']" position="after">
+                <field name="lead_quality" optional="show"/>
+                <field name="qualification_score" optional="show"/>
+                <field name="followup_date" optional="show"/>
+                <field name="is_followup_overdue" column_invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_crm_opportunity_list_portfolio" model="ir.ui.view">
+        <field name="name">crm.opportunity.list.portfolio</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_tree_view_oppor"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="decoration-danger">is_followup_overdue</attribute>
+            </xpath>
+            <xpath expr="//field[@name='expected_revenue']" position="after">
+                <field name="weighted_revenue" optional="show" sum="Total Weighted"/>
+                <field name="followup_date" optional="show"/>
+                <field name="quotation_state_summary" optional="hide"/>
+                <field name="is_followup_overdue" column_invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_crm_opportunity_kanban_portfolio" model="ir.ui.view">
+        <field name="name">crm.opportunity.kanban.portfolio</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="inside">
+                <field name="weighted_revenue"/>
+                <field name="followup_date"/>
+                <field name="is_followup_overdue"/>
+                <field name="lead_quality"/>
+                <field name="open_quotation_count"/>
+            </xpath>
+            <xpath expr="//t[@t-name='card']//div[hasclass('o_kanban_card_crm_lead_revenue')]" position="after">
+                <div t-if="record.weighted_revenue.raw_value" class="text-muted">
+                    Weighted: <field name="weighted_revenue"/>
+                </div>
+                <div t-if="record.is_followup_overdue.raw_value" class="text-danger">
+                    Follow-up overdue
+                </div>
+                <div t-elif="record.open_quotation_count.raw_value" class="text-muted">
+                    Open quotes: <field name="open_quotation_count"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_crm_lead_search_portfolio" model="ir.ui.view">
+        <field name="name">crm.lead.search.portfolio</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_leads_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='inactive']" position="before">
+                <filter string="Follow-up Overdue" name="portfolio_followup_overdue"
+                        domain="[('is_followup_overdue', '=', True)]"/>
+                <filter string="Hot Leads" name="portfolio_hot"
+                        domain="[('lead_quality', '=', 'hot')]"/>
+                <filter string="Ready to Convert" name="portfolio_auto_ready"
+                        domain="[('portfolio_auto_ready', '=', True)]"/>
+                <separator/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Lead Quality" name="group_lead_quality" context="{'group_by': 'lead_quality'}"/>
+                <filter string="Follow-up Date" name="group_followup" context="{'group_by': 'followup_date'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_crm_opportunity_search_portfolio" model="ir.ui.view">
+        <field name="name">crm.opportunity.search.portfolio</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='assigned_to_me']" position="before">
+                <filter string="Follow-up Overdue" name="portfolio_followup_overdue"
+                        domain="[('is_followup_overdue', '=', True)]"/>
+                <filter string="With Open Quotations" name="portfolio_open_quotes"
+                        domain="[('open_quotation_count', '&gt;', 0)]"/>
+                <separator/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Lead Quality" name="group_lead_quality" context="{'group_by': 'lead_quality'}"/>
+                <filter string="Follow-up Date" name="group_followup" context="{'group_by': 'followup_date'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_portfolio_assign_leads" model="ir.actions.server">
+        <field name="name">Assign Sales Representative</field>
+        <field name="model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_model_id" ref="crm.model_crm_lead"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_portfolio_assign_wizard()</field>
+        <field name="group_ids" eval="[(4, ref('portfolio_crm.group_crm_user'))]"/>
+    </record>
+</odoo>

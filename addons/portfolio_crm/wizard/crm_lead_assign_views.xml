@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_portfolio_crm_lead_assign_wizard_form" model="ir.ui.view">
+        <field name="name">portfolio.crm.lead.assign.wizard.form</field>
+        <field name="model">portfolio.crm.lead.assign.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Assign Sales Representative">
+                <group>
+                    <field name="mode"/>
+                    <field name="user_id"/>
+                    <field name="team_id"/>
+                </group>
+                <group string="Records">
+                    <field name="lead_ids" nolabel="1" colspan="2">
+                        <list>
+                            <field name="name"/>
+                            <field name="type"/>
+                            <field name="partner_id"/>
+                            <field name="user_id"/>
+                            <field name="expected_revenue"/>
+                        </list>
+                    </field>
+                </group>
+                <footer>
+                    <button name="action_assign" type="object" string="Assign" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

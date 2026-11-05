@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_portfolio_crm_root"
+              name="Portfolio CRM"
+              parent="crm.crm_menu_root"
+              groups="portfolio_crm.group_crm_user"
+              sequence="15"/>
+
+    <menuitem id="menu_portfolio_crm_dashboard"
+              name="Dashboard"
+              parent="menu_portfolio_crm_root"
+              action="action_portfolio_crm_dashboard"
+              sequence="1"/>
+
+    <menuitem id="menu_portfolio_crm_reporting"
+              name="Weighted Pipeline"
+              parent="crm.crm_menu_report"
+              action="action_portfolio_crm_dashboard"
+              groups="portfolio_crm.group_crm_user"
+              sequence="15"/>
+</odoo>

@@ -1,0 +1,35 @@
+# Environment / secrets
+.env
+*.local
+
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+.envrc
+
+# Odoo runtime
+logs/*
+!logs/.gitkeep
+*.log
+filestore/
+sessions/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Docker leftovers (if bind-mounted PG data is ever used)
+data/postgresql/*
+!data/postgresql/.gitkeep
+
+# Agent / local tooling noise
+.cursor/
+agent-transcripts/

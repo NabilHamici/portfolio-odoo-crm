@@ -1,0 +1,79 @@
+# Odoo 19 Community + PostgreSQL local development stack
+# Target: macOS Apple Silicon (arm64) via Docker Desktop
+#
+# Usage:
+#   docker compose up -d
+#   docker compose logs -f odoo
+#   open http://localhost:8069
+
+services:
+  db:
+    image: postgres:16
+    container_name: odoo19-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-odoo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      # Persistent PostgreSQL data (named volume survives container recreation)
+      - odoo-db-data:/var/lib/postgresql/data
+    ports:
+      # Exposed for local tools (psql, DBeaver, pgAdmin). Remove in production.
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-odoo} -d ${POSTGRES_DB:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - odoo-net
+
+  odoo:
+    image: odoo:19.0
+    container_name: odoo19-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      PORT: 5432
+      USER: ${POSTGRES_USER:-odoo}
+      PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      # Extra CLI flags for developer-friendly logging
+      # --log-level=info: readable request/SQL context without extreme verbosity
+      # --dev=reload,xml: hot-reload Python & XML while iterating on addons
+      ODOO_RC: /etc/odoo/odoo.conf
+    command: >
+      odoo
+      --config=/etc/odoo/odoo.conf
+      --dev=reload,xml
+    volumes:
+      # Custom addons (bind mount for live editing on the host)
+      - ./addons:/mnt/extra-addons
+      # Odoo configuration
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+      # Persistent filestore / sessions across restarts
+      - odoo-web-data:/var/lib/odoo
+      # Host-visible logs for easier debugging
+      - ./logs:/var/log/odoo
+    ports:
+      - "${ODOO_PORT:-8069}:8069"
+      # Longpolling / websocket (Discuss, live notifications)
+      - "${ODOO_LONGPOLLING_PORT:-8072}:8072"
+    networks:
+      - odoo-net
+
+volumes:
+  odoo-db-data:
+    name: odoo19-db-data
+  odoo-web-data:
+    name: odoo19-web-data
+
+networks:
+  odoo-net:
+    name: odoo19-net
+    driver: bridge

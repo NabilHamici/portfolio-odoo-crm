@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="partner_user_crm_rep" model="res.partner">
+        <field name="name">Alex Rep</field>
+        <field name="email">crm.rep@example.com</field>
+    </record>
+
+    <record id="partner_user_crm_manager" model="res.partner">
+        <field name="name">Morgan Manager</field>
+        <field name="email">crm.manager@example.com</field>
+    </record>
+
+    <record id="user_crm_rep" model="res.users">
+        <field name="partner_id" ref="partner_user_crm_rep"/>
+        <field name="login">crm_rep</field>
+        <field name="password">crm_rep</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('portfolio_crm.group_crm_user'),
+            ref('crm.group_use_lead'),
+        ])]"/>
+    </record>
+
+    <record id="user_crm_manager" model="res.users">
+        <field name="partner_id" ref="partner_user_crm_manager"/>
+        <field name="login">crm_manager</field>
+        <field name="password">crm_manager</field>
+        <field name="company_id" ref="base.main_company"/>
+        <field name="group_ids" eval="[Command.set([
+            ref('base.group_user'),
+            ref('portfolio_crm.group_crm_manager'),
+            ref('crm.group_use_lead'),
+        ])]"/>
+    </record>
+
+    <record id="partner_acme" model="res.partner">
+        <field name="name">ACME Industries</field>
+        <field name="email">buying@acme.example</field>
+        <field name="phone">+1 555 0100</field>
+        <field name="company_type">company</field>
+        <field name="is_company" eval="True"/>
+    </record>
+
+    <record id="partner_acme_contact" model="res.partner">
+        <field name="name">Jamie Buyer</field>
+        <field name="email">jamie@acme.example</field>
+        <field name="phone">+1 555 0101</field>
+        <field name="parent_id" ref="partner_acme"/>
+        <field name="type">contact</field>
+    </record>
+
+    <record id="partner_globex" model="res.partner">
+        <field name="name">Globex Corp</field>
+        <field name="email">sales@globex.example</field>
+        <field name="is_company" eval="True"/>
+        <field name="company_type">company</field>
+    </record>
+
+    <record id="team_portfolio" model="crm.team">
+        <field name="name">Portfolio Hunters</field>
+        <field name="use_leads" eval="True"/>
+        <field name="use_opportunities" eval="True"/>
+        <field name="member_ids" eval="[(4, ref('user_crm_rep'))]"/>
+        <field name="user_id" ref="user_crm_manager"/>
+    </record>
+
+    <!-- Highly qualified lead: auto-converts to opportunity on create -->
+    <record id="lead_acme_website" model="crm.lead">
+        <field name="name">ACME website inquiry</field>
+        <field name="type">lead</field>
+        <field name="contact_name">Jamie Buyer</field>
+        <field name="partner_name">ACME Industries</field>
+        <field name="email_from">jamie@acme.example</field>
+        <field name="phone">+1 555 0101</field>
+        <field name="lead_quality">hot</field>
+        <field name="expected_revenue">15000</field>
+        <field name="user_id" ref="user_crm_rep"/>
+        <field name="team_id" ref="team_portfolio"/>
+        <field name="followup_date" eval="(DateTime.today() + relativedelta(days=2)).strftime('%Y-%m-%d')"/>
+        <field name="description">Interested in annual CRM + Sales package.</field>
+        <field name="portfolio_notes">Inbound web form — should auto-convert.</field>
+    </record>
+
+    <!-- Incomplete lead stays as lead -->
+    <record id="lead_globex_cold" model="crm.lead">
+        <field name="name">Globex cold outreach</field>
+        <field name="type">lead</field>
+        <field name="partner_name">Globex Corp</field>
+        <field name="email_from">sales@globex.example</field>
+        <field name="lead_quality">cold</field>
+        <field name="expected_revenue">5000</field>
+        <field name="team_id" ref="team_portfolio"/>
+        <field name="followup_date" eval="(DateTime.today() - relativedelta(days=1)).strftime('%Y-%m-%d')"/>
+        <field name="portfolio_notes">Needs qualification call.</field>
+    </record>
+
+    <record id="opportunity_acme_upsell" model="crm.lead">
+        <field name="name">ACME upsell opportunity</field>
+        <field name="type">opportunity</field>
+        <field name="partner_id" ref="partner_acme"/>
+        <field name="contact_name">Jamie Buyer</field>
+        <field name="email_from">jamie@acme.example</field>
+        <field name="expected_revenue">25000</field>
+        <field name="probability">40</field>
+        <field name="lead_quality">warm</field>
+        <field name="user_id" ref="user_crm_rep"/>
+        <field name="team_id" ref="team_portfolio"/>
+        <field name="date_deadline" eval="(DateTime.today() + relativedelta(days=30)).strftime('%Y-%m-%d')"/>
+        <field name="followup_date" eval="(DateTime.today() + relativedelta(days=7)).strftime('%Y-%m-%d')"/>
+        <field name="portfolio_notes">Ready for quotation.</field>
+    </record>
+
+    <record id="product_portfolio_service" model="product.product">
+        <field name="name">Portfolio CRM Implementation</field>
+        <field name="list_price">5000</field>
+        <field name="type">service</field>
+        <field name="invoice_policy">order</field>
+    </record>
+
+    <record id="quotation_acme_draft" model="sale.order">
+        <field name="partner_id" ref="partner_acme"/>
+        <field name="opportunity_id" ref="opportunity_acme_upsell"/>
+        <field name="user_id" ref="user_crm_rep"/>
+        <field name="team_id" ref="team_portfolio"/>
+    </record>
+
+    <record id="quotation_acme_line" model="sale.order.line">
+        <field name="order_id" ref="quotation_acme_draft"/>
+        <field name="product_id" ref="product_portfolio_service"/>
+        <field name="product_uom_qty">2</field>
+    </record>
+</odoo>
