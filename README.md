@@ -83,9 +83,7 @@ Screenshots from the running Odoo 19 environment and `portfolio_crm` module.
 
 ![Odoo general settings](docs/showcase/09-odoo-settings.png)
 
-### Project structure
 
-![Repository and module structure in the IDE](docs/showcase/10-project-structure.png)
 
 ---
 
